@@ -22,12 +22,9 @@ public class Customer {
       int frequentRenterPoints = 0;
       Enumeration rentals = _rentals.elements();
       String result = "Rental Record for " + getName() + "\n";
-      while (rentals.hasMoreElements()) {
-         double thisAmount = 0;
-         Rental aRental = (Rental) rentals.nextElement();
 
-         // chamada ao método movido
-         thisAmount = aRental.getCharge();
+      while (rentals.hasMoreElements()) {
+         Rental aRental = (Rental) rentals.nextElement();
 
          // add frequent renter points
          frequentRenterPoints ++;
@@ -35,9 +32,10 @@ public class Customer {
              aRental.getDaysRented() > 1) frequentRenterPoints ++;
 
          // show figures for this rental
-         result += "\t" + aRental.getMovie().getTitle()+ "\t" +
-             String.valueOf(thisAmount) + "\n";
-         totalAmount += thisAmount;
+         result += "\t" + aRental.getMovie().getTitle() + "\t" +
+             String.valueOf(aRental.getCharge()) + "\n";
+
+         totalAmount += aRental.getCharge();
       }
 
       // add footer lines
