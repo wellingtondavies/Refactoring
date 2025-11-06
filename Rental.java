@@ -1,5 +1,4 @@
 public class Rental {
-
    private Movie _movie;
    private int _daysRented;
 
@@ -16,10 +15,8 @@ public class Rental {
       return _movie;
    }
 
-   // Novo método movido de Customer
-   double getCharge() {
+   public double getCharge() {
       double result = 0;
-
       switch (getMovie().getPriceCode()) {
          case Movie.REGULAR:
             result += 2;
@@ -36,5 +33,14 @@ public class Rental {
             break;
       }
       return result;
+   }
+
+   public int getFrequentRenterPoints() {
+      // regra padrão
+      int points = 1;
+      // bônus para novos lançamentos alugados por mais de um dia
+      if ((getMovie().getPriceCode() == Movie.NEW_RELEASE) && getDaysRented() > 1)
+         points++;
+      return points;
    }
 }

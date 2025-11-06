@@ -26,10 +26,8 @@ public class Customer {
       while (rentals.hasMoreElements()) {
          Rental aRental = (Rental) rentals.nextElement();
 
-         // add frequent renter points
-         frequentRenterPoints ++;
-         if ((aRental.getMovie().getPriceCode() == Movie.NEW_RELEASE) &&
-             aRental.getDaysRented() > 1) frequentRenterPoints ++;
+         // frequent renter points agora vem de Rental
+         frequentRenterPoints += aRental.getFrequentRenterPoints();
 
          // show figures for this rental
          result += "\t" + aRental.getMovie().getTitle() + "\t" +
