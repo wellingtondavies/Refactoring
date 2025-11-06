@@ -29,10 +29,27 @@ public class Customer {
              String.valueOf(aRental.getCharge()) + "\n";
       }
 
-      // add footer lines
+      // footer
       result +=  "Amount owed is " + String.valueOf(getTotalCharge()) + "\n";
       result += "You earned " + String.valueOf(getTotalFrequentRenterPoints()) +
               " frequent renter points";
+      return result;
+   }
+
+   public String htmlStatement() {
+      Enumeration rentals = _rentals.elements();
+      String result = "<h1>Rentals for <em>" + getName() + "</em></h1><p>\n";
+
+      while (rentals.hasMoreElements()) {
+         Rental aRental = (Rental) rentals.nextElement();
+         result += aRental.getMovie().getTitle() + ": " +
+                   String.valueOf(aRental.getCharge()) + "<br>\n";
+      }
+
+      result += "<p>You owe <em>" + String.valueOf(getTotalCharge()) + "</em><p>\n";
+      result += "On this rental you earned <em>" +
+                String.valueOf(getTotalFrequentRenterPoints()) +
+                "</em> frequent renter points<p>";
       return result;
    }
 
@@ -46,7 +63,6 @@ public class Customer {
       return result;
    }
 
-   // novo método: soma todos os pontos de fidelidade
    private int getTotalFrequentRenterPoints() {
       int result = 0;
       Enumeration rentals = _rentals.elements();
