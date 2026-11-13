@@ -1,75 +1,56 @@
-import java.util.Enumeration;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Customer {
-   private String _name;
-   private Vector _rentals = new Vector();
 
-   public Customer (String name){
-      _name = name;
-   }
+    private final String name;
+    private final List<Rental> rentals = new ArrayList<>();
 
-   public void addRental(Rental arg) {
-      _rentals.addElement(arg);
-   }
+    public Customer(String name) {
+        this.name = name;
+    }
 
-   public String getName (){
-      return _name;
-   }
+    public void addRental(Rental rental) {
+        rentals.add(rental);
+    }
 
-   public String statement() {
-      Enumeration rentals = _rentals.elements();
-      String result = "Rental Record for " + getName() + "\n";
+    public String getName() {
+        return name;
+    }
 
-      while (rentals.hasMoreElements()) {
-         Rental aRental = (Rental) rentals.nextElement();
+    public String statement() {
+        StringBuilder result = new StringBuilder("Rental Record for " + getName() + "\n");
 
-         // show figures for this rental
-         result += "\t" + aRental.getMovie().getTitle() + "\t" +
-             String.valueOf(aRental.getCharge()) + "\n";
-      }
+        for (Rental rental : rentals) {
+            result.append("\t").append(rental.getMovie().getTitle())
+                  .append("\t").append(rental.getCharge()).append("\n");
+        }
 
-      // footer
-      result +=  "Amount owed is " + String.valueOf(getTotalCharge()) + "\n";
-      result += "You earned " + String.valueOf(getTotalFrequentRenterPoints()) +
-              " frequent renter points";
-      return result;
-   }
+        result.append("Amount owed is ").append(getTotalCharge()).append("\n");
+        result.append("You earned ").append(getTotalFrequentRenterPoints())
+              .append(" frequent renter points");
+        return result.toString();
+    }
 
-   public String htmlStatement() {
-      Enumeration rentals = _rentals.elements();
-      String result = "<h1>Rentals for <em>" + getName() + "</em></h1><p>\n";
+    public String htmlStatement() {
+        StringBuilder result = new StringBuilder("<h1>Rentals for <em>" + getName() + "</em></h1><p>\n");
 
-      while (rentals.hasMoreElements()) {
-         Rental aRental = (Rental) rentals.nextElement();
-         result += aRental.getMovie().getTitle() + ": " +
-                   String.valueOf(aRental.getCharge()) + "<br>\n";
-      }
+        for (Rental rental : rentals) {
+            result.append(rental.getMovie().getTitle()).append(": ")
+                  .append(rental.getCharge()).append("<br>\n");
+        }
 
-      result += "<p>You owe <em>" + String.valueOf(getTotalCharge()) + "</em><p>\n";
-      result += "On this rental you earned <em>" +
-                String.valueOf(getTotalFrequentRenterPoints()) +
-                "</em> frequent renter points<p>";
-      return result;
-   }
+        result.append("<p>You owe <em>").append(getTotalCharge()).append("</em><p>\n");
+        result.append("On this rental you earned <em>").append(getTotalFrequentRenterPoints())
+              .append("</em> frequent renter points<p>");
+        return result.toString();
+    }
 
-   private double getTotalCharge() {
-      double result = 0;
-      Enumeration rentals = _rentals.elements();
-      while (rentals.hasMoreElements()) {
-         Rental aRental = (Rental) rentals.nextElement();
-         result += aRental.getCharge();
-      }
-      return result;
-   }
+    private double getTotalCharge() {
+        return rentals.stream().mapToDouble(Rental::getCharge).sum();
+    }
 
-   private int getTotalFrequentRenterPoints() {
-      int result = 0;
-      Enumeration rentals = _rentals.elements();
-      while (rentals.hasMoreElements()) {
-         Rental aRental = (Rental) rentals.nextElement();
-         result += aRental.getFrequentRenterPoints();
-      }
-      return result;
-   }
+    private int getTotalFrequentRenterPoints() {
+        return rentals.stream().mapToInt(Rental::getFrequentRenterPoints).sum();
+    }
 }
