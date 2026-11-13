@@ -1,103 +1,109 @@
-# 🎬 Refactoring - Exemplo de Locadora (Movie Rental)
+# Refactoring — exemplo da locadora de filmes
 
-Projeto baseado no exemplo clássico do livro **“Refactoring: Improving the Design of Existing Code”**, de **Martin Fowler**, reimplementado em **Java** com commits organizados e documentados passo a passo.
+Reimplementação em Java do exemplo clássico do livro *Refactoring: Improving the Design of Existing
+Code*, de Martin Fowler. O código parte de um método `statement()` que faz tudo sozinho e passa por
+uma sequência de refatorações, uma por commit, até chegar a classes coesas e a uma hierarquia de
+preços polimórfica. O comportamento é o mesmo do começo ao fim, e isso é conferido por um teste de
+regressão.
 
-O objetivo é demonstrar **boas práticas de refatoração** em código orientado a objetos, mantendo o mesmo comportamento, mas tornando o código mais limpo, reutilizável e fácil de manter.
+Projeto acadêmico de Engenharia de Software — Centro Universitário FAG.
 
----
+**Autor:** Wellington Davies dos Santos.
 
-## 🚀 Estrutura do Projeto
+## Arquitetura
 
-| Classe | Função |
-|--------|--------|
-| **Movie** | Representa um filme e seu tipo de preço (Regular, Infantil ou Novo Lançamento). |
-| **Rental** | Representa uma locação, associando um filme e a quantidade de dias alugados. |
-| **Customer** | Representa o cliente e gera os relatórios de locações (texto e HTML). |
-| **Main** | Classe principal que cria objetos, executa os testes e exibe os resultados. |
+```
+ Main ──► Customer ──► Rental ──► Movie ──► Price (abstrata)
+          relatórios   dias       título     ├── RegularPrice
+          e totais     alugados   e preço    ├── ChildrensPrice
+                                             └── NewReleasePrice
+```
 
----
+Cada classe responde só pelo que conhece: o cliente monta os relatórios e soma os totais, a locação
+guarda os dias, o filme delega o cálculo para a sua estratégia de preço.
 
-## 🧩 Histórico de Refatorações (Commits)
+| Classe            | Responsabilidade                                                        |
+| ----------------- | ----------------------------------------------------------------------- |
+| `Customer`        | Guarda as locações e gera os relatórios em texto e em HTML              |
+| `Rental`          | Liga um filme à quantidade de dias alugados                             |
+| `Movie`           | Título do filme e qual estratégia de preço está em uso                  |
+| `Price`           | Contrato da estratégia de preço e regra padrão de pontos (1 por locação) |
+| `RegularPrice`    | R$ 2,00 até 2 dias, mais R$ 1,50 por dia extra                          |
+| `ChildrensPrice`  | R$ 1,50 até 3 dias, mais R$ 1,50 por dia extra                          |
+| `NewReleasePrice` | R$ 3,00 por dia; 2 pontos quando alugado por mais de 1 dia              |
+| `Main`            | Monta um exemplo e imprime os dois relatórios                           |
+| `VerificaSaida`   | Teste de regressão sem dependências                                     |
 
-### **Commit 1 – Criar estrutura inicial**
-Criação das classes base: `Movie`, `Rental`, `Customer` e `Main`, com o método `statement()` original contendo toda a lógica dentro de `Customer`.
+## Estrutura do repositório
 
-### **Commit 2 – Extract Method (amountFor)**
-Extraiu o cálculo de cada locação para um novo método `amountFor()`, isolando a lógica de cobrança e melhorando a legibilidade.
+```
+src/
+├── Main.java              exemplo de uso
+├── Customer.java
+├── Rental.java
+├── Movie.java
+├── Price.java             estratégia de preço (abstrata)
+├── RegularPrice.java
+├── ChildrensPrice.java
+├── NewReleasePrice.java
+└── VerificaSaida.java     teste de regressão
+```
 
-### **Commit 3 – Rename Variable (each → aRental)**
-Substituiu variáveis com nomes genéricos (`each`) por nomes descritivos (`aRental`), tornando o código mais fácil de entender.
+## Como executar
 
-### **Commit 4 – Move Method (amountFor → getCharge em Rental)**
-Moveu o cálculo de valor da locação para a classe `Rental` (`getCharge()`), aplicando o princípio de **cohesão** e **encapsulamento**.
+Requisito: JDK 8 ou mais recente.
 
-### **Commit 5 – Replace Temp with Query (thisAmount → uso direto de getCharge)**
-Removeu a variável temporária `thisAmount` e passou a chamar `getCharge()` diretamente, reduzindo complexidade.
+```bash
+javac -d out src/*.java
+java -cp out Main            # imprime os relatórios
+java -cp out VerificaSaida   # confere o comportamento (sai com código 1 se algo mudou)
+```
 
-### **Commit 6 – Extract Method (frequent renter points → getFrequentRenterPoints)**
-Criou o método `getFrequentRenterPoints()` em `Rental`, encapsulando a regra de pontos de fidelidade dentro da classe correta.
+Saída em texto:
 
-### **Commit 7 – Replace Temp with Query (totalAmount → getTotalCharge)**
-Criou o método `getTotalCharge()` em `Customer`, eliminando a variável temporária e deixando o método `statement()` mais limpo.
-
-### **Commit 8 – Replace Temp with Query (frequentRenterPoints → getTotalFrequentRenterPoints)**
-Criou o método `getTotalFrequentRenterPoints()` em `Customer`, aplicando o mesmo princípio do commit anterior.
-
-### **Commit 9 – Add htmlStatement()**
-Adicionou o método `htmlStatement()`, que gera o relatório de locações em formato HTML, reutilizando os métodos refatorados.
-
----
-
-## 💡 Resultado Final
-
-### 📄 Saída em texto:
 ```
 Rental Record for Wellington Davies
 	Matrix	3.5
 	Vingadores: Ultimato	6.0
-	Frozen	4.5
-Amount owed is 14.0
+	Frozen	3.0
+Amount owed is 12.5
 You earned 4 frequent renter points
 ```
 
-### 🌐 Saída em HTML:
+Saída em HTML:
+
 ```html
 <h1>Rentals for <em>Wellington Davies</em></h1><p>
 Matrix: 3.5<br>
 Vingadores: Ultimato: 6.0<br>
-Frozen: 4.5<br>
-<p>You owe <em>14.0</em><p>
+Frozen: 3.0<br>
+<p>You owe <em>12.5</em><p>
 On this rental you earned <em>4</em> frequent renter points<p>
 ```
 
----
+## Histórico de refatorações
 
-## ⚙️ Como Executar
+| #  | Refatoração                       | O que mudou                                                                      |
+| -- | --------------------------------- | -------------------------------------------------------------------------------- |
+| 1  | Estrutura inicial                 | `Movie`, `Rental`, `Customer` e `Main`, com toda a lógica em `statement()`       |
+| 2  | Extract Method                    | Cálculo de cada locação vai para `amountFor()`                                   |
+| 3  | Rename Variable                   | `each` vira `aRental`                                                            |
+| 4  | Move Method                       | `amountFor()` vira `getCharge()` em `Rental`                                     |
+| 5  | Replace Temp with Query           | Some a variável `thisAmount`                                                     |
+| 6  | Extract Method                    | Pontos de fidelidade vão para `Rental.getFrequentRenterPoints()`                 |
+| 7  | Replace Temp with Query           | `totalAmount` vira `getTotalCharge()`                                            |
+| 8  | Replace Temp with Query           | `frequentRenterPoints` vira `getTotalFrequentRenterPoints()`                     |
+| 9  | Novo recurso                      | `htmlStatement()` reaproveita os métodos extraídos                               |
+| 10 | Move Method                       | `getCharge()` e `getFrequentRenterPoints()` passam para `Movie`                  |
+| 11 | Replace Type Code with State/Strategy | O `switch` por código de preço vira a hierarquia `Price`                     |
+| 12 | Coleções genéricas                | `Vector`/`Enumeration` viram `List<Rental>`, for-each e streams                  |
 
-### 1️⃣ Compilar
-```bash
-javac *.java
-```
+Os passos 10 e 11 são os que fecham o capítulo 1 do livro: depois deles, criar um novo tipo de
+filme é só criar uma nova subclasse de `Price`, sem mexer em `Customer` nem em `Rental`.
 
-### 2️⃣ Executar
-```bash
-java Main
-```
+## Limitações
 
----
-
-## 🧠 Conceitos de Refatoração Aplicados
-
-- **Extract Method** → Quebra grandes blocos de código em métodos menores e reutilizáveis.  
-- **Move Method** → Move comportamentos para a classe mais apropriada.  
-- **Replace Temp with Query** → Remove variáveis temporárias substituindo-as por métodos.  
-- **Encapsulamento e coesão** → Cada classe é responsável apenas por sua própria lógica.  
-- **Clareza e manutenibilidade** → Código mais legível, testável e preparado para evoluções.
-
----
-
-## 🧑‍💻 Autor
-
-**Wellington Davies**  
-Estudante de Engenharia de Software  
-Apaixonado por tecnologia, refatoração e boas práticas de código limpo 💡  
+- Os valores usam `double`, como no livro; um sistema real usaria `BigDecimal` para dinheiro.
+- `VerificaSaida` é um teste em `main` para não depender de Maven nem de JUnit.
+- As constantes `Movie.REGULAR`, `CHILDRENS` e `NEW_RELEASE` foram mantidas para não mudar a forma
+  de criar filmes usada no `Main`.
